@@ -72,7 +72,7 @@ class PathFinder:
         """
         Calcula a distância entre dois nós
         """
-        return max(abs(node1[0] - node2[1]), abs(node1[1] - node2[0]))
+        return max(abs(node1[0] - node2[0]), abs(node1[1] - node2[1]))
     
     def explore(self):
         """
@@ -90,13 +90,14 @@ class PathFinder:
                 s for s in self.grid.nodes_S if 
                     (s[0] == current_node[0]) or
                     (s[1] == current_node[1]) or
-                    (abs(s[0] - current_node[0] == abs(s[1] - current_node[1])))
-            ]
+                    (abs(s[0] - current_node[0]) == abs(s[1] - current_node[1]))
+                ]
+        
         elif step == 3:
             candidate_node = [
                 t for t in self.grid.nodes_T if 
-                    (t[1] > current_node[0] and t[0] == current_node[0]) or
-                    (t[0] > current_node[1] and t[1] == current_node[1])
+                    (t[1] > current_node[1] and t[0] == current_node[0]) or
+                    (t[0] > current_node[0] and t[1] == current_node[1])
             ]
         
         elif step == 4:
@@ -215,7 +216,7 @@ class GraphVisualizer:
             ax=self.ax
         )
 
-    def animate_and_show(self, interval_ms: int = 200) -> None:
+    def animate_and_show(self, interval_ms: int = 5) -> None:
         """Inicia e exibe a animação do algoritmo de busca."""
         total_frames = len(self.edges_sequence) + 1
         
@@ -231,7 +232,7 @@ class GraphVisualizer:
         plt.show()
         
         
-grafo = GridGraph(6, 10)
+grafo = GridGraph(9, 10)
 
 buscador = PathFinder(grafo)
 buscador.explore()
