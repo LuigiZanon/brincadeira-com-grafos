@@ -129,22 +129,18 @@ class GraphVisualizer:
         self.grid = grid_graph
         self.paths = path_finder.succeeded_paths + path_finder.failed_paths
         
-        # Coleta apenas os nós finais dos caminhos de sucesso
         success_ends = [p[-1] for p in path_finder.succeeded_paths]
         
-        # Descobre o nó de sucesso com maior número de caminhos
         self.most_visited_success_node = None
         if success_ends:
             self.most_visited_success_node = Counter(success_ends).most_common(1)[0][0]
 
-        # Lista de nós de sucesso normais (excluindo o mais visitado)
         self.succeed_nodes = list(set(success_ends))
         if self.most_visited_success_node in self.succeed_nodes:
             self.succeed_nodes.remove(self.most_visited_success_node)
             
         self.failed_nodes = list(set([p[-1] for p in path_finder.failed_paths]))
         
-        # Configurações de escala responsivas ao tamanho de N
         N = self.grid.N
         self.figsize = max(10, N * 1.0)
         self.node_size = max(100, 3600 / N)
@@ -153,7 +149,6 @@ class GraphVisualizer:
         self.X_size = self.node_size * 3.5
         self.star_size = self.node_size * 4
         
-        # Inicializa a figura para a animação
         self.fig, self.ax = plt.subplots(figsize=(self.figsize, self.figsize))
         self.edges_sequence = self._prepare_animation_sequence()
 
@@ -163,7 +158,6 @@ class GraphVisualizer:
         for path in self.paths:
             for i in range(len(path) - 1):
                 aresta = (path[i], path[i+1])
-                # Define cor e curvatura baseada na etapa (i) do caminho
                 if i == 0:
                     color, rad = "green", 0.2
                 elif i == 1:
@@ -179,20 +173,16 @@ class GraphVisualizer:
         self.ax.clear()
         self.ax.axis("off")
         
-        # Desenha os nós padrão
         nx.draw_networkx_nodes(self.grid.G, pos=self.grid.position, nodelist=self.grid.nodes_C, node_color="green", node_size=self.node_size, node_shape="o", ax=self.ax)
         nx.draw_networkx_nodes(self.grid.G, pos=self.grid.position, nodelist=self.grid.nodes_S, node_color="black", node_size=self.node_size, node_shape="s", ax=self.ax)
         nx.draw_networkx_nodes(self.grid.G, pos=self.grid.position, nodelist=self.grid.nodes_T, node_color="blue", node_size=self.node_size, node_shape="^", ax=self.ax)
         
-        # Desenha nós falhos (X vermelho)
         if self.failed_nodes:
             nx.draw_networkx_nodes(self.grid.G, pos=self.grid.position, nodelist=self.failed_nodes, node_color="red", node_size=self.X_size, node_shape="x", linewidths=3, ax=self.ax)
             
-        # Desenha nós de sucesso comuns (Estrela ouro)
         if self.succeed_nodes:
             nx.draw_networkx_nodes(self.grid.G, pos=self.grid.position, nodelist=self.succeed_nodes, node_color="gold", node_size=self.star_size, node_shape="*", ax=self.ax)
             
-        # Desenha o nó de sucesso mais visitado (Estrela vermelha)
         if self.most_visited_success_node:
             nx.draw_networkx_nodes(self.grid.G, pos=self.grid.position, nodelist=[self.most_visited_success_node], node_color="purple", node_size=self.star_size, node_shape="*", ax=self.ax)
 
@@ -202,7 +192,6 @@ class GraphVisualizer:
             self._draw_base_nodes()
             return
 
-        # Busca a aresta correspondente ao frame atual e plota
         aresta, color, rad = self.edges_sequence[frame - 1]
         nx.draw_networkx_edges(
             self.grid.G,
@@ -220,7 +209,6 @@ class GraphVisualizer:
         """Inicia e exibe a animação do algoritmo de busca."""
         total_frames = len(self.edges_sequence) + 1
         
-        # Cria a animação utilizando o FuncAnimation do matplotlib
         self.ani = FuncAnimation(
             self.fig, 
             self._update_frame, 
@@ -230,6 +218,26 @@ class GraphVisualizer:
         )
         
         plt.show()
+
+    def show_static(self) -> None:
+        """Exibe o grafo completo imediatamente, sem animação."""
+        self._draw_base_nodes()
+        
+        for aresta, color, rad in self.edges_sequence:
+            nx.draw_networkx_edges(
+                self.grid.G,
+                pos=self.grid.position,
+                edgelist=[aresta],
+                edge_color=color,
+                width=self.edge_width,
+                arrows=True,
+                arrowsize=self.arrow_width,
+                node_size=self.node_size,
+                connectionstyle=f'arc3,rad={rad}',
+                ax=self.ax
+            )
+            
+        plt.show()
         
         
 grafo = GridGraph(9, 10)
@@ -238,4 +246,4 @@ buscador = PathFinder(grafo)
 buscador.explore()
 
 visualizador = GraphVisualizer(grafo, buscador)
-visualizador.animate_and_show(0)
+visualizador.show_static()
