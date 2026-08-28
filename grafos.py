@@ -17,6 +17,9 @@ class GridGraph:
         self.G = None
         self.position = {}
 
+        if self.N < 2:
+            raise ValueError("N nao pode ser menor que 2")
+
         self.nodes_C = []   # Circulos
         self.nodes_S = []   # Quadrados
         self.nodes_T = []   # Triangulos
@@ -161,9 +164,9 @@ class GraphVisualizer:
                 if i == 0:
                     color, rad = "green", 0.2
                 elif i == 1:
-                    color, rad = (0.4,0.4,0.4), 0.18
+                    color, rad = (0.4,0.4,0.4), 0.25
                 else:
-                    color, rad = "blue", 0.2
+                    color, rad = "blue", 0.18
                     
                 sequence.append((aresta, color, rad))
         return sequence
@@ -202,7 +205,8 @@ class GraphVisualizer:
             arrows=True,
             arrowsize=self.arrow_width,
             connectionstyle=f'arc3,rad={rad}',
-            ax=self.ax
+            alpha=0.5,
+            ax=self.ax,
         )
 
     def animate_and_show(self, interval_ms: int = 5) -> None:
@@ -234,13 +238,14 @@ class GraphVisualizer:
                 arrowsize=self.arrow_width,
                 node_size=self.node_size,
                 connectionstyle=f'arc3,rad={rad}',
-                ax=self.ax
+                alpha=0.5,
+                ax=self.ax,
             )
             
         plt.show()
         
         
-grafo = GridGraph(9, 10)
+grafo = GridGraph(10, 10)
 
 buscador = PathFinder(grafo)
 buscador.explore()
